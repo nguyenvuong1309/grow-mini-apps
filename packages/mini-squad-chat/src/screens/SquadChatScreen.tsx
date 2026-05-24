@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   FlatList,
@@ -6,20 +6,15 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { useRoute, type RouteProp } from '@react-navigation/native';
-import { useTheme } from 'host/theme';
-import { useAppDispatch, useAppSelector } from 'host/store/hooks';
-import { ScreenContainer } from 'host/shared/layout';
-import {
   Text,
-  Avatar,
-  Spinner,
-  SkeletonProvider,
-  PressableOpacity,
-} from 'host/shared/ui';
-import { SquadChatSkeleton } from '../components/SquadChatSkeleton';
-import { selectUser } from 'host/state/auth';
+  Pressable,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+} from 'react-native';
+import {useRoute, type RouteProp} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {useTheme} from '../local/theme';
 import {
   fetchMessagesRequest,
   sendMessageRequest,
@@ -31,33 +26,77 @@ import {
   selectSquadLoadingMore,
   selectHasMoreMessages,
   selectMessagesPage,
-} from 'host/state/squad';
-import type { SquadMessage } from 'host/types/models';
+  selectUser,
+  type SquadMessage,
+} from '../local/state';
+import {SquadChatSkeleton} from '../components/SquadChatSkeleton';
 
-type SquadChatRouteParams = { squadId: string };
+type SquadChatRouteParams = {squadId: string};
 type RouteParams = RouteProp<
-  { 'Squad.Chat': SquadChatRouteParams },
+  {'Squad.Chat': SquadChatRouteParams},
   'Squad.Chat'
 >;
 
-export function SquadChatScreen() {
-  const { colors: c, borderRadius: br, typography: t } = useTheme();
-  const dispatch = useAppDispatch();
-  const route = useRoute<RouteParams>();
-  const { squadId } = route.params;
+function Avatar({
+  name,
+  uri,
+  size = 32,
+  bgColor,
+}: {
+  name?: string | null;
+  uri?: string | null;
+  size?: number;
+  bgColor: string;
+}) {
+  if (uri) {
+    return (
+      <Image
+        source={{uri}}
+        style={{width: size, height: size, borderRadius: size / 2}}
+      />
+    );
+  }
+  const initials = (name ?? '?')
+    .split(' ')
+    .map(s => s[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  return (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: bgColor,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <Text style={{color: '#fff', fontSize: 12, fontWeight: '600'}}>
+        {initials}
+      </Text>
+    </View>
+  );
+}
 
-  const messages = useAppSelector(selectMessages);
-  const isLoading = useAppSelector(selectSquadLoading);
-  const isLoadingMore = useAppSelector(selectSquadLoadingMore);
-  const hasMore = useAppSelector(selectHasMoreMessages);
-  const messagesPage = useAppSelector(selectMessagesPage);
-  const currentUser = useAppSelector(selectUser);
+export function SquadChatScreen() {
+  const {colors: c, borderRadius: br, typography: t} = useTheme();
+  const dispatch = useDispatch();
+  const route = useRoute<RouteParams>();
+  const {squadId} = route.params;
+
+  const messages = useSelector(selectMessages);
+  const isLoading = useSelector(selectSquadLoading);
+  const isLoadingMore = useSelector(selectSquadLoadingMore);
+  const hasMore = useSelector(selectHasMoreMessages);
+  const messagesPage = useSelector(selectMessagesPage);
+  const currentUser = useSelector(selectUser);
 
   const [inputText, setInputText] = useState('');
 
   useEffect(() => {
     dispatch(resetMessages());
-    dispatch(fetchMessagesRequest({ squadId, page: 0 }));
+    dispatch(fetchMessagesRequest({squadId, page: 0}));
     dispatch(subscribeChatRealtime(squadId));
 
     return () => {
@@ -83,19 +122,13 @@ export function SquadChatScreen() {
       profile: currentUser,
     };
 
-    dispatch(
-      sendMessageRequest({
-        squadId,
-        body,
-        optimisticMessage,
-      }),
-    );
+    dispatch(sendMessageRequest({squadId, body, optimisticMessage}));
     setInputText('');
   }, [dispatch, squadId, inputText, currentUser]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
-      dispatch(fetchMessagesRequest({ squadId, page: messagesPage + 1 }));
+      dispatch(fetchMessagesRequest({squadId, page: messagesPage + 1}));
     }
   }, [dispatch, squadId, isLoadingMore, hasMore, messagesPage]);
 
@@ -108,7 +141,7 @@ export function SquadChatScreen() {
   }, []);
 
   const renderMessage = useCallback(
-    ({ item }: { item: SquadMessage }) => {
+    ({item}: {item: SquadMessage}) => {
       const isMe = item.user_id === currentUser?.id;
       const isOptimistic = item.id.startsWith('optimistic-');
 
@@ -117,28 +150,25 @@ export function SquadChatScreen() {
           style={[
             styles.messageBubbleContainer,
             isMe ? styles.myMessageContainer : styles.otherMessageContainer,
-          ]}
-        >
+          ]}>
           {!isMe && (
             <Avatar
               name={item.profile?.display_name}
               uri={item.profile?.avatar_url}
-              size="sm"
+              bgColor={c.primary}
             />
           )}
           <View
             style={[
               styles.bubbleContent,
               isMe ? styles.myBubbleContent : undefined,
-            ]}
-          >
+            ]}>
             {!isMe && (
               <Text
-                variant="caption"
-                bold
-                color={c.primary}
-                style={styles.senderName}
-              >
+                style={[
+                  styles.senderName,
+                  {color: c.primary, fontWeight: '600'},
+                ]}>
                 {item.profile?.display_name ?? 'Member'}
               </Text>
             )}
@@ -150,45 +180,53 @@ export function SquadChatScreen() {
                   borderRadius: br.lg,
                   opacity: isOptimistic ? 0.6 : 1,
                 },
-              ]}
-            >
-              <Text variant="body" color={isMe ? '#fff' : c.text}>
+              ]}>
+              <Text
+                style={{
+                  color: isMe ? '#fff' : c.text,
+                  fontSize: t.sizes.base,
+                }}>
                 {item.body}
               </Text>
             </View>
             <Text
-              variant="caption"
-              color={c.textSecondary}
-              style={[styles.timestamp, isMe ? styles.myTimestamp : undefined]}
-            >
+              style={[
+                styles.timestamp,
+                {
+                  color: c.textSecondary,
+                  fontSize: t.sizes.caption,
+                },
+                isMe ? styles.myTimestamp : undefined,
+              ]}>
               {formatTime(item.created_at)}
             </Text>
           </View>
         </View>
       );
     },
-    [currentUser, c, br, formatTime],
+    [currentUser, c, br, t, formatTime],
   );
 
   const keyExtractor = useCallback((item: SquadMessage) => item.id, []);
 
   if (isLoading && messages.length === 0) {
     return (
-      <ScreenContainer testID="squad-chat-screen">
-        <SkeletonProvider>
-          <SquadChatSkeleton />
-        </SkeletonProvider>
-      </ScreenContainer>
+      <SafeAreaView
+        testID="squad-chat-screen"
+        style={{flex: 1, backgroundColor: c.background}}>
+        <SquadChatSkeleton />
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScreenContainer testID="squad-chat-screen">
+    <SafeAreaView
+      testID="squad-chat-screen"
+      style={{flex: 1, backgroundColor: c.background}}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
         <FlatList
           testID="chat-messages-list"
           data={messages}
@@ -200,13 +238,18 @@ export function SquadChatScreen() {
           ListFooterComponent={
             isLoadingMore ? (
               <View style={styles.loadingMore}>
-                <Spinner />
+                <ActivityIndicator />
               </View>
             ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyChat}>
-              <Text variant="body" color={c.textSecondary} center>
+              <Text
+                style={{
+                  color: c.textSecondary,
+                  fontSize: t.sizes.base,
+                  textAlign: 'center',
+                }}>
                 No messages yet. Start the conversation!
               </Text>
             </View>
@@ -217,16 +260,11 @@ export function SquadChatScreen() {
           }
         />
 
-        {/* Input Bar */}
         <View
           style={[
             styles.inputBar,
-            {
-              backgroundColor: c.background,
-              borderTopColor: c.border,
-            },
-          ]}
-        >
+            {backgroundColor: c.background, borderTopColor: c.border},
+          ]}>
           <TextInput
             testID="chat-input"
             style={[
@@ -245,85 +283,51 @@ export function SquadChatScreen() {
             multiline
             maxLength={2000}
           />
-          <PressableOpacity
+          <Pressable
             testID="chat-send-btn"
+            disabled={!inputText.trim()}
+            onPress={handleSend}
             style={[
               styles.sendBtn,
               {
                 backgroundColor: inputText.trim() ? c.primary : c.surface,
                 borderRadius: br.full,
               },
-            ]}
-            onPress={handleSend}
-            disabled={!inputText.trim()}
-          >
+            ]}>
             <Text
-              variant="body"
-              bold
-              color={inputText.trim() ? '#fff' : c.textSecondary}
-            >
-              {'↑'}
+              style={{
+                color: inputText.trim() ? '#fff' : c.textSecondary,
+                fontSize: t.sizes.base,
+                fontWeight: '700',
+              }}>
+              ↑
             </Text>
-          </PressableOpacity>
+          </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </ScreenContainer>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContent: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-  emptyListContent: {
-    flex: 1,
-    justifyContent: 'center',
-  },
+  container: {flex: 1},
+  listContent: {paddingHorizontal: 8, paddingVertical: 8},
+  emptyListContent: {flex: 1, justifyContent: 'center'},
   messageBubbleContainer: {
     flexDirection: 'row',
     marginVertical: 4,
     paddingHorizontal: 4,
   },
-  myMessageContainer: {
-    justifyContent: 'flex-end',
-  },
-  otherMessageContainer: {
-    justifyContent: 'flex-start',
-  },
-  bubbleContent: {
-    maxWidth: '75%',
-    marginLeft: 8,
-  },
-  myBubbleContent: {
-    alignItems: 'flex-end',
-    marginLeft: 'auto',
-    marginRight: 0,
-  },
-  senderName: {
-    marginBottom: 2,
-  },
-  bubble: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  timestamp: {
-    marginTop: 2,
-  },
-  myTimestamp: {
-    textAlign: 'right',
-  },
-  loadingMore: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  emptyChat: {
-    padding: 24,
-    alignItems: 'center',
-  },
+  myMessageContainer: {justifyContent: 'flex-end'},
+  otherMessageContainer: {justifyContent: 'flex-start'},
+  bubbleContent: {maxWidth: '75%', marginLeft: 8},
+  myBubbleContent: {alignItems: 'flex-end', marginLeft: 'auto', marginRight: 0},
+  senderName: {marginBottom: 2, fontSize: 12},
+  bubble: {paddingHorizontal: 12, paddingVertical: 8},
+  timestamp: {marginTop: 2},
+  myTimestamp: {textAlign: 'right'},
+  loadingMore: {paddingVertical: 16, alignItems: 'center'},
+  emptyChat: {padding: 24, alignItems: 'center'},
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
