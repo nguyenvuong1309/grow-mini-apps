@@ -17,7 +17,13 @@
     "packages/*/src/**/*.{ts,tsx,js,jsx}": [
       "prettier --write"
     ],
-    "packages/*/src/**/*.{json,md}": [
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    ".github/**/*.{yml,yaml}": [
+      "prettier --write"
+    ],
+    "packages/*/*.{json,md,js,mjs}": [
       "prettier --write"
     ]
   },
