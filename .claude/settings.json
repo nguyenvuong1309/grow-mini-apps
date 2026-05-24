@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'src/features/.*\\.tsx'; then echo '⚠️ Source file modified. Remember: add testID to new UI elements and run related E2E tests.'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

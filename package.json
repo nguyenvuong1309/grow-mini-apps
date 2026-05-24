@@ -1,0 +1,35 @@
+{
+  "name": "grow-mini-apps",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.23.0",
+  "scripts": {
+    "start": "mprocs",
+    "mini-squad-chat:start": "pnpm --filter mini-squad-chat start",
+    "mini-squad-chat:bundle:ios": "pnpm --filter mini-squad-chat bundle:ios",
+    "mini-squad-chat:bundle:android": "pnpm --filter mini-squad-chat bundle:android",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "format:check": "prettier --check \"packages/*/src/**/*.{ts,tsx,js,jsx}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "packages/*/src/**/*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ],
+    "packages/*/src/**/*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">= 22.11.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "mprocs": "^0.9.3",
+    "prettier": "^3.8.3"
+  }
+}

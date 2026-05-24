@@ -1,0 +1,5 @@
+node_modules
+build
+.repack
+*.log
+.DS_Store

@@ -1,0 +1,4 @@
+procs:
+  mini-squad-chat:
+    cwd: packages/mini-squad-chat
+    cmd: [pnpm, start]
