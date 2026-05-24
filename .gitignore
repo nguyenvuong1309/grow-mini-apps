@@ -3,3 +3,4 @@ build
 .repack
 *.log
 .DS_Store
+dist/
