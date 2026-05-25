@@ -9,9 +9,9 @@ import {
   Text,
   Pressable,
   ActivityIndicator,
-  Image,
-  SafeAreaView,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useRoute, type RouteProp} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {useTheme} from '../local/theme';
@@ -50,7 +50,7 @@ function Avatar({
 }) {
   if (uri) {
     return (
-      <Image
+      <FastImage
         source={{uri}}
         style={{width: size, height: size, borderRadius: size / 2}}
       />

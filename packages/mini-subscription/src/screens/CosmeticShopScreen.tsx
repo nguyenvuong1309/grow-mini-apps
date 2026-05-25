@@ -1,13 +1,6 @@
 import React, {useCallback, useState} from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Alert,
-  Text,
-  Pressable,
-  SafeAreaView,
-} from 'react-native';
+import {View, FlatList, StyleSheet, Alert, Text, Pressable} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useSelector} from 'react-redux';
 import {useTheme} from '../local/theme';
 import {selectPointsBalance} from '../local/state';

@@ -45,13 +45,3 @@ export const purchaseRequest = (tier: SubscriptionTier) => ({
   type: 'subscription/purchaseRequest' as const,
   payload: tier,
 });
-
-export const purchaseSuccess = (tier: SubscriptionTier) => ({
-  type: 'subscription/purchaseSuccess' as const,
-  payload: tier,
-});
-
-export const purchaseFailure = (error: string) => ({
-  type: 'subscription/purchaseFailure' as const,
-  payload: error,
-});
