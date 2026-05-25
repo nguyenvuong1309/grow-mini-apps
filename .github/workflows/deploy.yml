@@ -4,14 +4,45 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: Deploy target
+        required: true
+        default: both
+        type: choice
+        options:
+          - dev
+          - prod
+          - both
+
+concurrency:
+  group: deploy-${{ github.ref }}-${{ inputs.environment || 'auto' }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Build + deploy mini bundles
+  resolve-matrix:
+    name: Resolve matrix
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
+    outputs:
+      targets: ${{ steps.set.outputs.targets }}
+    steps:
+      - id: set
+        run: |
+          # Push to main auto-deploys to BOTH prod and dev CDN.
+          # workflow_dispatch respects the user's selection.
+          env="${{ inputs.environment }}"
+          if [ -z "$env" ] || [ "$env" = "both" ]; then
+            echo 'targets=[{"name":"prod","project":"grow-mini-apps"},{"name":"dev","project":"grow-mini-apps-dev"}]' >> "$GITHUB_OUTPUT"
+          elif [ "$env" = "prod" ]; then
+            echo 'targets=[{"name":"prod","project":"grow-mini-apps"}]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'targets=[{"name":"dev","project":"grow-mini-apps-dev"}]' >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build dist/
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -21,6 +52,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -28,9 +60,62 @@ jobs:
       - name: Build dist/
         run: pnpm build:dist
 
+      - name: Report bundle sizes
+        run: |
+          {
+            echo "## 📦 Mini-app bundle sizes"
+            echo
+            echo "| Mini | Platform | Container size |"
+            echo "|---|---|---|"
+            for pkg in dist/*/; do
+              name=$(basename "$pkg")
+              for plat in ios android; do
+                container=$(find "$pkg$plat" -maxdepth 1 -name '*.container.bundle' 2>/dev/null | head -1)
+                if [ -n "$container" ]; then
+                  size=$(stat -c%s "$container")
+                  echo "| $name | $plat | $(numfmt --to=iec --suffix=B --format='%.2f' "$size") |"
+                fi
+              done
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload dist/ as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mini-apps-dist-${{ github.run_number }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy → ${{ matrix.target.name }}
+    needs: [resolve-matrix, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.resolve-matrix.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download dist/ artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mini-apps-dist-${{ github.run_number }}
+          path: dist/
+
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=grow-mini-apps --branch=main
+          command: pages deploy dist --project-name=${{ matrix.target.project }} --branch=main
+
+      - name: Annotate deployment URL
+        run: |
+          echo "### 🌎 ${{ matrix.target.name }} deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "URL: https://${{ matrix.target.project }}.pages.dev" >> "$GITHUB_STEP_SUMMARY"
