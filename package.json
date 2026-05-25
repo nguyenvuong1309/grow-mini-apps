@@ -8,6 +8,14 @@
     "mini-squad-chat:start": "pnpm --filter mini-squad-chat start",
     "mini-squad-chat:bundle:ios": "pnpm --filter mini-squad-chat bundle:ios",
     "mini-squad-chat:bundle:android": "pnpm --filter mini-squad-chat bundle:android",
+    "mini-subscription:start": "pnpm --filter mini-subscription start",
+    "mini-subscription:bundle:ios": "pnpm --filter mini-subscription bundle:ios",
+    "mini-subscription:bundle:android": "pnpm --filter mini-subscription bundle:android",
+    "build:dist": "./scripts/build-dist.sh",
+    "deploy": "pnpm build:dist && npx wrangler pages deploy dist --project-name grow-mini-apps --branch=main",
+    "deploy:dev": "pnpm build:dist && npx wrangler pages deploy dist --project-name grow-mini-apps-dev --branch=main",
+    "deploy:all": "pnpm build:dist && npx wrangler pages deploy dist --project-name grow-mini-apps --branch=main && npx wrangler pages deploy dist --project-name grow-mini-apps-dev --branch=main",
+    "setup:cloudflare": "./scripts/setup-cloudflare.sh",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "format:check": "prettier --check \"packages/*/src/**/*.{ts,tsx,js,jsx}\"",
@@ -17,7 +25,13 @@
     "packages/*/src/**/*.{ts,tsx,js,jsx}": [
       "prettier --write"
     ],
-    "packages/*/src/**/*.{json,md}": [
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    ".github/**/*.{yml,yaml}": [
+      "prettier --write"
+    ],
+    "packages/*/*.{json,md,js,mjs}": [
       "prettier --write"
     ]
   },

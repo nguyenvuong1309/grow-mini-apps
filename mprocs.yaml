@@ -2,3 +2,6 @@ procs:
   mini-squad-chat:
     cwd: packages/mini-squad-chat
     cmd: [pnpm, start]
+  mini-subscription:
+    cwd: packages/mini-subscription
+    cmd: [pnpm, start]

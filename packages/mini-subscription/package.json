@@ -1,11 +1,11 @@
 {
-  "name": "mini-squad-chat",
+  "name": "mini-subscription",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "start": "react-native webpack-start --port 9001",
-    "start:standalone": "STANDALONE=true react-native webpack-start --port 9001",
+    "start": "react-native webpack-start --port 9002",
+    "start:standalone": "STANDALONE=true react-native webpack-start --port 9002",
     "bundle:ios": "react-native webpack-bundle --platform ios --entry-file src/index.js --dev false --bundle-output build/ios/main.jsbundle",
     "bundle:android": "react-native webpack-bundle --platform android --entry-file src/index.js --dev false --bundle-output build/android/main.jsbundle",
     "typecheck": "tsc --noEmit",

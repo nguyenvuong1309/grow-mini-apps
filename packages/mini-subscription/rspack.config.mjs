@@ -7,17 +7,19 @@ import rspack from '@rspack/core';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const STANDALONE = process.env.STANDALONE === 'true';
+
 export default Repack.defineRspackConfig(({mode, platform}) => {
   return {
     mode,
     context: __dirname,
     entry: './src/index.js',
     devServer: {
-      port: 9001,
+      port: 9002,
       host: '0.0.0.0',
     },
     output: {
-      uniqueName: 'mini-squad-chat',
+      uniqueName: 'mini-subscription',
     },
     resolve: {
       ...Repack.getResolveOptions(),
@@ -55,14 +57,15 @@ export default Repack.defineRspackConfig(({mode, platform}) => {
       ),
 
       new Repack.plugins.ModuleFederationPluginV2({
-        name: 'miniSquadChat',
-        filename: 'miniSquadChat.container.bundle',
+        name: 'miniSubscription',
+        filename: 'miniSubscription.container.bundle',
         dts: false,
-        exposes: {
-          './SquadChatNavigator': './src/SquadChatNavigator',
+        remotes: {
+          host: `host@http://localhost:8081/${platform}/host.container.bundle`,
         },
-        // Foundational deps MUST be eager:true singletons. Lazy/non-eager
-        // sharing causes Hermes EXC_BAD_ACCESS in iOS production builds.
+        exposes: {
+          './SubscriptionNavigator': './src/SubscriptionNavigator',
+        },
         shared: {
           react: {
             singleton: true,
