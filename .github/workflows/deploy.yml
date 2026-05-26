@@ -113,6 +113,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm
           command: pages deploy dist --project-name=${{ matrix.target.project }} --branch=main
 
       - name: Annotate deployment URL
