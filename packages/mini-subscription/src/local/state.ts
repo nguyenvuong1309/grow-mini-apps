@@ -1,4 +1,4 @@
-// Local action creators + selectors that talk to the host's Redux slices.
+// Local action creators + selectors that talk to host-owned Redux slices.
 //
 // We can't import from `host/state/*` via Module Federation (see local/theme.ts
 // for context). Instead, we dispatch plain action objects with the same `type`
@@ -21,17 +21,26 @@ interface SubscriptionState {
   isPurchasing: boolean;
 }
 
+interface MiniProfile {
+  subscription_tier?: SubscriptionTier | null;
+}
+
+interface AuthState {
+  user: MiniProfile | null;
+}
+
 interface PointsState {
   balance: number;
 }
 
 interface AppState {
+  auth?: AuthState;
   subscription?: SubscriptionState;
   points?: PointsState;
 }
 
-export const selectTier = (state: AppState): SubscriptionTier =>
-  state.subscription?.tier ?? SubscriptionTier.FREE;
+export const selectTier = (state: AppState): SubscriptionTier | null =>
+  state.auth?.user?.subscription_tier ?? state.subscription?.tier ?? null;
 
 export const selectIsPurchasing = (state: AppState): boolean =>
   state.subscription?.isPurchasing ?? false;

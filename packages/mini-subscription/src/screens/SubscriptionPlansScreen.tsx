@@ -108,7 +108,7 @@ export function SubscriptionPlansScreen() {
 
   const isCurrent = (tier: SubscriptionTier) => tier === currentTier;
   const isUpgrade = (tier: SubscriptionTier) =>
-    TIER_RANK[tier]! > TIER_RANK[currentTier]!;
+    currentTier != null && TIER_RANK[tier] > TIER_RANK[currentTier];
 
   const renderHeader = () => (
     <View>
