@@ -1,6 +1,6 @@
 import React from 'react';
 import {ActivityIndicator, View, StyleSheet} from 'react-native';
-import {useTheme} from '../theme';
+import {useTheme} from '../theme/ThemeContext';
 
 interface SpinnerProps {
   size?: 'small' | 'large';

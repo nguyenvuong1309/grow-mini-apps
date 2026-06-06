@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -42,7 +42,7 @@ function ReactionButton({
     transform: [{scale: scaleAnim.get()}],
   }));
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     scaleAnim.set(
       withSequence(
         withSpring(1.3, {damping: 3, stiffness: 200}),
@@ -50,7 +50,7 @@ function ReactionButton({
       ),
     );
     onPress(emoji);
-  }, [emoji, onPress, scaleAnim]);
+  };
 
   return (
     <PressableOpacity

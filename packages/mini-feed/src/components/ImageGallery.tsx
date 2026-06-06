@@ -1,6 +1,6 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Modal, useWindowDimensions} from 'react-native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme, Text, PressableOpacity} from '@grow/shared-ui';
 
@@ -14,13 +14,13 @@ export function ImageGallery({images, testID}: ImageGalleryProps) {
   const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = useWindowDimensions();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleImagePress = useCallback((uri: string) => {
+  const handleImagePress = (uri: string) => {
     setSelectedImage(uri);
-  }, []);
+  };
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModal = () => {
     setSelectedImage(null);
-  }, []);
+  };
 
   if (images.length === 0) {
     return null;

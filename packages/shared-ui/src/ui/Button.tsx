@@ -11,7 +11,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import {useTheme} from '../theme';
+import {useTheme} from '../theme/ThemeContext';
 import {Text} from './Text';
 
 // Inlined from host `@shared/utils/animations` to keep shared-ui self-contained.

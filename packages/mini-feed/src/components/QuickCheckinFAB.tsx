@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {
   FlatList,
   Modal,
@@ -35,65 +35,59 @@ export function QuickCheckinFAB() {
   const isLoadingFromStore = useSelector(selectFeedLoading);
   const [hasRequested, setHasRequested] = useState(false);
 
-  const fetchActiveChallenges = useCallback(() => {
+  const fetchActiveChallenges = () => {
     setHasRequested(true);
     dispatch(fetchMyChallengesRequest('active'));
-  }, [dispatch]);
+  };
 
-  const handleFABPress = useCallback(() => {
+  const handleFABPress = () => {
     setIsOpen(true);
     fetchActiveChallenges();
-  }, [fetchActiveChallenges]);
+  };
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setIsOpen(false);
-  }, []);
+  };
 
-  const handleChallengePress = useCallback(
-    (challenge: Challenge) => {
-      handleClose();
-      navigate('ChallengeStack', {
-        screen: 'Challenge.CheckIn',
-        params: {challengeId: challenge.id},
-      });
-    },
-    [navigate, handleClose],
-  );
+  const handleChallengePress = (challenge: Challenge) => {
+    handleClose();
+    navigate('ChallengeStack', {
+      screen: 'Challenge.CheckIn',
+      params: {challengeId: challenge.id},
+    });
+  };
 
   // Show the spinner only until challenges arrive in the store after a request.
   const isFetching =
     hasRequested && challenges.length === 0 && isLoadingFromStore;
 
-  const renderChallengeItem = useCallback(
-    ({item}: {item: Challenge}) => (
-      <Pressable
-        testID={`quick-checkin-item-${item.id}`}
-        onPress={() => handleChallengePress(item)}
-        style={[
-          styles.challengeItem,
-          {
-            backgroundColor: c.surfaceElevated,
-            borderRadius: br.lg,
-            borderColor: c.borderLight,
-            padding: s.base,
-            marginBottom: s.sm,
-            marginHorizontal: s.base,
-          },
-        ]}>
-        <View style={{flex: 1}}>
-          <Text variant="body" bold numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text variant="caption" color={c.textSecondary}>
-            {item.checkin_type} check-in
-          </Text>
-        </View>
-        <Text variant="body" color={c.primary}>
-          {'>'}
+  const renderChallengeItem = ({item}: {item: Challenge}) => (
+    <Pressable
+      testID={`quick-checkin-item-${item.id}`}
+      onPress={() => handleChallengePress(item)}
+      style={[
+        styles.challengeItem,
+        {
+          backgroundColor: c.surfaceElevated,
+          borderRadius: br.lg,
+          borderColor: c.borderLight,
+          padding: s.base,
+          marginBottom: s.sm,
+          marginHorizontal: s.base,
+        },
+      ]}>
+      <View style={{flex: 1}}>
+        <Text variant="body" bold numberOfLines={1}>
+          {item.name}
         </Text>
-      </Pressable>
-    ),
-    [c, s, br, handleChallengePress],
+        <Text variant="caption" color={c.textSecondary}>
+          {item.checkin_type} check-in
+        </Text>
+      </View>
+      <Text variant="body" color={c.primary}>
+        {'>'}
+      </Text>
+    </Pressable>
   );
 
   return (

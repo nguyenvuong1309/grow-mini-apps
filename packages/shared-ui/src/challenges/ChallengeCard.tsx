@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Pressable} from 'react-native';
-import {useTheme} from '../theme';
+import {useTheme} from '../theme/ThemeContext';
 import {Text} from '../ui/Text';
 import {Badge} from '../ui/Badge';
 import {Card} from '../ui/Card';

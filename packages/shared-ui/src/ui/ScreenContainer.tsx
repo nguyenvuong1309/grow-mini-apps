@@ -1,7 +1,7 @@
 import React from 'react';
 import {ScrollView, View, StyleSheet, type ViewStyle} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useTheme} from '../theme';
+import {useTheme} from '../theme/ThemeContext';
 
 interface ScreenContainerProps {
   children: React.ReactNode;

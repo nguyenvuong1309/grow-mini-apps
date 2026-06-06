@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {View, FlatList, StyleSheet, Alert, Text, Pressable} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useSelector} from 'react-redux';
@@ -102,34 +102,31 @@ export function CosmeticShopScreen() {
       ? items
       : items.filter(item => item.category === activeFilter);
 
-  const handleBuy = useCallback(
-    (item: CosmeticItem) => {
-      if (item.owned) return;
-      if (balance < item.price) {
-        Alert.alert(
-          'Insufficient Points',
-          'You do not have enough points for this item.',
-        );
-        return;
-      }
+  const handleBuy = (item: CosmeticItem) => {
+    if (item.owned) return;
+    if (balance < item.price) {
       Alert.alert(
-        'Confirm Purchase',
-        `Buy ${item.name} for ${item.price} points?`,
-        [
-          {text: 'Cancel', style: 'cancel'},
-          {
-            text: 'Buy',
-            onPress: () => {
-              setItems(prev =>
-                prev.map(i => (i.id === item.id ? {...i, owned: true} : i)),
-              );
-            },
-          },
-        ],
+        'Insufficient Points',
+        'You do not have enough points for this item.',
       );
-    },
-    [balance],
-  );
+      return;
+    }
+    Alert.alert(
+      'Confirm Purchase',
+      `Buy ${item.name} for ${item.price} points?`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Buy',
+          onPress: () => {
+            setItems(prev =>
+              prev.map(i => (i.id === item.id ? {...i, owned: true} : i)),
+            );
+          },
+        },
+      ],
+    );
+  };
 
   const renderItem = ({item}: {item: CosmeticItem}) => (
     <View

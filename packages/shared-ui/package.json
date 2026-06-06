@@ -13,9 +13,9 @@
     "@swc/helpers": "^0.5.20"
   },
   "peerDependencies": {
+    "@d11/react-native-fast-image": "*",
     "react": "*",
     "react-native": "*",
-    "react-native-fast-image": "*",
     "react-native-reanimated": "*",
     "react-native-safe-area-context": "*",
     "react-redux": "*"

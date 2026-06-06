@@ -1,6 +1,6 @@
-import React, {useCallback, useMemo} from 'react';
+import React from 'react';
 import {View, StyleSheet, Share} from 'react-native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import {useNavigation} from '@react-navigation/native';
 import {
   useTheme,
@@ -65,51 +65,43 @@ export function FeedPostCard({
   const dispatch = useDispatch();
   const {navigate} = useNavigation<LooseNav>();
 
-  // Build combined image array for gallery
-  const allImages = useMemo(() => {
-    const imgs: string[] = [];
-    if (post.image_url) {
-      imgs.push(post.image_url);
-    }
-    if (post.additional_images && Array.isArray(post.additional_images)) {
-      imgs.push(...post.additional_images);
-    }
-    return imgs;
-  }, [post.image_url, post.additional_images]);
+  const allImages = [
+    ...(post.image_url ? [post.image_url] : []),
+    ...(post.additional_images && Array.isArray(post.additional_images)
+      ? post.additional_images
+      : []),
+  ];
 
-  const handleReactionToggle = useCallback(
-    (emoji: ReactionEmoji) => {
-      dispatch(toggleReactionRequest({checkinId: post.id, emoji}));
-    },
-    [dispatch, post.id],
-  );
+  const handleReactionToggle = (emoji: ReactionEmoji) => {
+    dispatch(toggleReactionRequest({checkinId: post.id, emoji}));
+  };
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     onPress(post);
-  }, [onPress, post]);
+  };
 
-  const handleCommentPress = useCallback(() => {
+  const handleCommentPress = () => {
     if (onCommentPress) {
       onCommentPress(post);
       return;
     }
     onPress(post);
-  }, [onCommentPress, onPress, post]);
+  };
 
-  const handleAvatarPress = useCallback(() => {
+  const handleAvatarPress = () => {
     navigate('SocialStack', {
       screen: 'Social.PublicProfile',
       params: {userId: post.user_id},
     });
-  }, [navigate, post.user_id]);
+  };
 
-  const handleShare = useCallback(() => {
+  const handleShare = () => {
     const deepLink = `grow://post/${post.id}`;
     const message = post.text_content
       ? `Check-in by ${post.profile.display_name} for "${post.challenge_name}" on Grow!\n\n"${post.text_content}"\n\n${deepLink}`
       : `${post.profile.display_name} just checked in for "${post.challenge_name}" on Grow!\n\n${deepLink}`;
     Share.share({message});
-  }, [post]);
+  };
 
   return (
     <PressableOpacity

@@ -8,7 +8,7 @@
 // remain MIRRORS: plain selectors/action creators whose `type` strings match
 // the host's auth / challenges slices byte-for-byte.
 
-import type {Profile, Challenge} from '../types';
+import type {Challenge} from '../types';
 
 export * from '../types';
 export * from '../state/feed.slice';
@@ -17,22 +17,13 @@ export * from '../state/feed.slice';
 // The feed slice's own selectors are typed against `{ feed?: FeedState }`; here
 // we only describe the auth / challenges slices the mirrors read.
 
-interface AuthState {
-  user: Profile | null;
-}
-
 interface ChallengesState {
   myChallenges: Challenge[];
 }
 
 interface MirrorState {
-  auth?: AuthState;
   challenges?: ChallengesState;
 }
-
-// ── auth.* mirror (host auth.slice.ts) ────────────────────────────────────
-export const selectUser = (state: MirrorState): Profile | null =>
-  state.auth?.user ?? null;
 
 // ── challenges.* mirror (host challenges.slice.ts) ────────────────────────
 export const selectMyChallenges = (state: MirrorState): Challenge[] =>

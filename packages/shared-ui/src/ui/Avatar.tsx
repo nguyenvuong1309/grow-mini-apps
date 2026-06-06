@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,8 +7,8 @@ import {
   Pressable,
   StatusBar,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
-import {useTheme} from '../theme';
+import FastImage from '@d11/react-native-fast-image';
+import {useTheme} from '../theme/ThemeContext';
 import {Text} from './Text';
 import {PressableOpacity} from './PressableOpacity';
 
@@ -59,8 +59,8 @@ export function Avatar({
   const fontSize = FONT_SIZES[size];
   const [visible, setVisible] = useState(false);
 
-  const handleOpen = useCallback(() => setVisible(true), []);
-  const handleClose = useCallback(() => setVisible(false), []);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
 
   if (uri) {
     const imageElement = (

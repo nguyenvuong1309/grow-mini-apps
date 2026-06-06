@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   FlatList,
@@ -82,45 +82,42 @@ export function CommentsSheet({
     prevCommentsLength.current = comments.length;
   }, [comments.length]);
 
-  const handleSend = useCallback(() => {
+  const handleSend = () => {
     const trimmed = commentText.trim();
     if (!trimmed || isCommenting) {
       return;
     }
     dispatch(addCommentRequest({checkinId, body: trimmed}));
     setCommentText('');
-  }, [commentText, checkinId, dispatch, isCommenting]);
+  };
 
-  const handleLoadMore = useCallback(() => {
+  const handleLoadMore = () => {
     if (commentsHasMore && !isLoading) {
       dispatch(fetchCommentsRequest({checkinId, page: commentsPage + 1}));
     }
-  }, [commentsHasMore, isLoading, checkinId, commentsPage, dispatch]);
+  };
 
-  const renderComment = useCallback(
-    ({item}: {item: Comment}) => (
-      <View style={[styles.commentRow, {paddingVertical: s.sm}]}>
-        <Avatar
-          uri={item.profile?.avatar_url}
-          name={item.profile?.display_name}
-          size="sm"
-        />
-        <View style={[styles.commentContent, {marginLeft: s.sm}]}>
-          <View style={styles.commentHeader}>
-            <Text variant="bodySmall" bold>
-              {item.profile?.display_name ?? 'Unknown'}
-            </Text>
-            <Text variant="caption" style={{marginLeft: s.xs}}>
-              {formatCommentTime(item.created_at)}
-            </Text>
-          </View>
-          <Text variant="body" style={{marginTop: 2}}>
-            {item.body}
+  const renderComment = ({item}: {item: Comment}) => (
+    <View style={[styles.commentRow, {paddingVertical: s.sm}]}>
+      <Avatar
+        uri={item.profile?.avatar_url}
+        name={item.profile?.display_name}
+        size="sm"
+      />
+      <View style={[styles.commentContent, {marginLeft: s.sm}]}>
+        <View style={styles.commentHeader}>
+          <Text variant="bodySmall" bold>
+            {item.profile?.display_name ?? 'Unknown'}
+          </Text>
+          <Text variant="caption" style={{marginLeft: s.xs}}>
+            {formatCommentTime(item.created_at)}
           </Text>
         </View>
+        <Text variant="body" style={{marginTop: 2}}>
+          {item.body}
+        </Text>
       </View>
-    ),
-    [s],
+    </View>
   );
 
   return (

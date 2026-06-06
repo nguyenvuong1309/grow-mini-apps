@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   FlatList,
@@ -10,7 +10,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useRoute, type RouteProp} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -79,6 +79,16 @@ function Avatar({
   );
 }
 
+function formatTime(dateStr: string) {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+const keyExtractor = (item: SquadMessage) => item.id;
+
 export function SquadChatScreen() {
   const {colors: c, borderRadius: br, typography: t} = useTheme();
   const dispatch = useDispatch();
@@ -105,7 +115,7 @@ export function SquadChatScreen() {
     };
   }, [dispatch, squadId]);
 
-  const handleSend = useCallback(() => {
+  const handleSend = () => {
     const body = inputText.trim();
     if (!body || !currentUser) {
       return;
@@ -124,90 +134,77 @@ export function SquadChatScreen() {
 
     dispatch(sendMessageRequest({squadId, body, optimisticMessage}));
     setInputText('');
-  }, [dispatch, squadId, inputText, currentUser]);
+  };
 
-  const handleLoadMore = useCallback(() => {
+  const handleLoadMore = () => {
     if (!isLoadingMore && hasMore) {
       dispatch(fetchMessagesRequest({squadId, page: messagesPage + 1}));
     }
-  }, [dispatch, squadId, isLoadingMore, hasMore, messagesPage]);
+  };
 
-  const formatTime = useCallback((dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }, []);
+  const renderMessage = ({item}: {item: SquadMessage}) => {
+    const isMe = item.user_id === currentUser?.id;
+    const isOptimistic = item.id.startsWith('optimistic-');
 
-  const renderMessage = useCallback(
-    ({item}: {item: SquadMessage}) => {
-      const isMe = item.user_id === currentUser?.id;
-      const isOptimistic = item.id.startsWith('optimistic-');
-
-      return (
+    return (
+      <View
+        style={[
+          styles.messageBubbleContainer,
+          isMe ? styles.myMessageContainer : styles.otherMessageContainer,
+        ]}>
+        {!isMe && (
+          <Avatar
+            name={item.profile?.display_name}
+            uri={item.profile?.avatar_url}
+            bgColor={c.primary}
+          />
+        )}
         <View
           style={[
-            styles.messageBubbleContainer,
-            isMe ? styles.myMessageContainer : styles.otherMessageContainer,
+            styles.bubbleContent,
+            isMe ? styles.myBubbleContent : undefined,
           ]}>
           {!isMe && (
-            <Avatar
-              name={item.profile?.display_name}
-              uri={item.profile?.avatar_url}
-              bgColor={c.primary}
-            />
+            <Text
+              style={[
+                styles.senderName,
+                {color: c.primary, fontWeight: '600'},
+              ]}>
+              {item.profile?.display_name ?? 'Member'}
+            </Text>
           )}
           <View
             style={[
-              styles.bubbleContent,
-              isMe ? styles.myBubbleContent : undefined,
+              styles.bubble,
+              {
+                backgroundColor: isMe ? c.primary : c.surface,
+                borderRadius: br.lg,
+                opacity: isOptimistic ? 0.6 : 1,
+              },
             ]}>
-            {!isMe && (
-              <Text
-                style={[
-                  styles.senderName,
-                  {color: c.primary, fontWeight: '600'},
-                ]}>
-                {item.profile?.display_name ?? 'Member'}
-              </Text>
-            )}
-            <View
-              style={[
-                styles.bubble,
-                {
-                  backgroundColor: isMe ? c.primary : c.surface,
-                  borderRadius: br.lg,
-                  opacity: isOptimistic ? 0.6 : 1,
-                },
-              ]}>
-              <Text
-                style={{
-                  color: isMe ? '#fff' : c.text,
-                  fontSize: t.sizes.base,
-                }}>
-                {item.body}
-              </Text>
-            </View>
             <Text
-              style={[
-                styles.timestamp,
-                {
-                  color: c.textSecondary,
-                  fontSize: t.sizes.caption,
-                },
-                isMe ? styles.myTimestamp : undefined,
-              ]}>
-              {formatTime(item.created_at)}
+              style={{
+                color: isMe ? '#fff' : c.text,
+                fontSize: t.sizes.base,
+              }}>
+              {item.body}
             </Text>
           </View>
+          <Text
+            style={[
+              styles.timestamp,
+              {
+                color: c.textSecondary,
+                fontSize: t.sizes.caption,
+              },
+              isMe ? styles.myTimestamp : undefined,
+            ]}>
+            {formatTime(item.created_at)}
+          </Text>
         </View>
-      );
-    },
-    [currentUser, c, br, t, formatTime],
-  );
-
-  const keyExtractor = useCallback((item: SquadMessage) => item.id, []);
+      </View>
+    );
+  };
 
   if (isLoading && messages.length === 0) {
     return (

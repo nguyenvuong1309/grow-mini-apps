@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   FlatList,
@@ -7,7 +7,7 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import {useRoute} from '@react-navigation/native';
 import type {RouteProp} from '@react-navigation/native';
 import {
@@ -136,9 +136,7 @@ interface PostAuthorHeaderProps {
   post: FeedPost;
 }
 
-const PostAuthorHeader = React.memo(function PostAuthorHeader({
-  post,
-}: PostAuthorHeaderProps) {
+function PostAuthorHeader({post}: PostAuthorHeaderProps) {
   const {spacing: s} = useTheme();
   return (
     <View style={[styles.postHeader, {marginBottom: s.sm}]}>
@@ -158,17 +156,14 @@ const PostAuthorHeader = React.memo(function PostAuthorHeader({
       </View>
     </View>
   );
-});
+}
 
 interface PostMediaProps {
   post: FeedPost;
   images: string[];
 }
 
-const PostMedia = React.memo(function PostMedia({
-  post,
-  images,
-}: PostMediaProps) {
+function PostMedia({post, images}: PostMediaProps) {
   const {colors: c, spacing: s} = useTheme();
 
   return (
@@ -236,17 +231,14 @@ const PostMedia = React.memo(function PostMedia({
         )}
     </>
   );
-});
+}
 
 interface PostReactionsSectionProps {
   post: FeedPost;
   onToggle: (emoji: ReactionEmoji) => void;
 }
 
-const PostReactionsSection = React.memo(function PostReactionsSection({
-  post,
-  onToggle,
-}: PostReactionsSectionProps) {
+function PostReactionsSection({post, onToggle}: PostReactionsSectionProps) {
   const {spacing: s} = useTheme();
   return (
     <>
@@ -265,7 +257,7 @@ const PostReactionsSection = React.memo(function PostReactionsSection({
       </Text>
     </>
   );
-});
+}
 
 interface PostDetailHeaderProps {
   post: FeedPost;
@@ -273,7 +265,7 @@ interface PostDetailHeaderProps {
   onReactionToggle: (emoji: ReactionEmoji) => void;
 }
 
-const PostDetailHeader = React.memo(function PostDetailHeader({
+function PostDetailHeader({
   post,
   images,
   onReactionToggle,
@@ -288,17 +280,14 @@ const PostDetailHeader = React.memo(function PostDetailHeader({
       <PostReactionsSection post={post} onToggle={onReactionToggle} />
     </View>
   );
-});
+}
 
 interface ReplyIndicatorProps {
   replyingTo: Comment;
   onCancel: () => void;
 }
 
-const ReplyIndicator = React.memo(function ReplyIndicator({
-  replyingTo,
-  onCancel,
-}: ReplyIndicatorProps) {
+function ReplyIndicator({replyingTo, onCancel}: ReplyIndicatorProps) {
   const {colors: c, spacing: s} = useTheme();
   return (
     <View
@@ -325,7 +314,7 @@ const ReplyIndicator = React.memo(function ReplyIndicator({
       </PressableOpacity>
     </View>
   );
-});
+}
 
 interface CommentInputProps {
   value: string;
@@ -427,11 +416,7 @@ export function PostDetailScreen() {
   const flatListRef = useRef<FlatList<CommentWithReplies>>(null);
   const inputRef = useRef<TextInput>(null);
 
-  // Build threaded comment tree
-  const threadedComments = useMemo(
-    () => buildCommentTree(comments),
-    [comments],
-  );
+  const threadedComments = buildCommentTree(comments);
 
   useEffect(() => {
     dispatch(fetchPostDetailRequest(postId));
@@ -457,26 +442,20 @@ export function PostDetailScreen() {
     prevCommentsLength.current = comments.length;
   }, [comments.length]);
 
-  const handleReactionToggle = useCallback(
-    (emoji: ReactionEmoji) => {
-      dispatch(toggleReactionRequest({checkinId: postId, emoji}));
-    },
-    [dispatch, postId],
-  );
+  const handleReactionToggle = (emoji: ReactionEmoji) => {
+    dispatch(toggleReactionRequest({checkinId: postId, emoji}));
+  };
 
-  const handleReply = useCallback(
-    (comment: Comment) => {
-      dispatch(setReplyingTo(comment));
-      inputRef.current?.focus();
-    },
-    [dispatch],
-  );
+  const handleReply = (comment: Comment) => {
+    dispatch(setReplyingTo(comment));
+    inputRef.current?.focus();
+  };
 
-  const handleCancelReply = useCallback(() => {
+  const handleCancelReply = () => {
     dispatch(clearReplyingTo());
-  }, [dispatch]);
+  };
 
-  const handleSendComment = useCallback(() => {
+  const handleSendComment = () => {
     const trimmed = commentText.trim();
     if (!trimmed || isCommenting) {
       return;
@@ -489,39 +468,30 @@ export function PostDetailScreen() {
       }),
     );
     setCommentText('');
-  }, [commentText, postId, dispatch, isCommenting, replyingTo]);
+  };
 
-  const handleLoadMoreComments = useCallback(() => {
+  const handleLoadMoreComments = () => {
     if (commentsHasMore && !isLoading) {
       dispatch(
         fetchCommentsRequest({checkinId: postId, page: commentsPage + 1}),
       );
     }
-  }, [commentsHasMore, isLoading, postId, commentsPage, dispatch]);
+  };
 
-  const renderComment = useCallback(
-    ({item}: {item: CommentWithReplies}) => (
-      <CommentItem comment={item} onReply={handleReply} />
-    ),
-    [handleReply],
+  const renderComment = ({item}: {item: CommentWithReplies}) => (
+    <CommentItem comment={item} onReply={handleReply} />
   );
 
-  // Build combined image array for gallery
-  const allPostImages = useMemo(() => {
-    if (!post) {
-      return [];
-    }
-    const imgs: string[] = [];
-    if (post.image_url) {
-      imgs.push(post.image_url);
-    }
-    if (post.additional_images && Array.isArray(post.additional_images)) {
-      imgs.push(...post.additional_images);
-    }
-    return imgs;
-  }, [post]);
+  const allPostImages = post
+    ? [
+        ...(post.image_url ? [post.image_url] : []),
+        ...(post.additional_images && Array.isArray(post.additional_images)
+          ? post.additional_images
+          : []),
+      ]
+    : [];
 
-  const renderHeader = useCallback(() => {
+  const renderHeader = () => {
     if (!post) {
       return null;
     }
@@ -532,7 +502,7 @@ export function PostDetailScreen() {
         onReactionToggle={handleReactionToggle}
       />
     );
-  }, [post, allPostImages, handleReactionToggle]);
+  };
 
   if (isLoading && !post) {
     return (

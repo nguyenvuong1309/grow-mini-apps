@@ -8,7 +8,7 @@ import Animated, {
   interpolate,
   Easing,
 } from 'react-native-reanimated';
-import {useTheme} from '../theme';
+import {useTheme} from '../theme/ThemeContext';
 import {useSkeletonShimmer} from './SkeletonContext';
 
 interface SkeletonProps {

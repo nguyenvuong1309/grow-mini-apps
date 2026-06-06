@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   FlatList,
@@ -76,28 +76,24 @@ export function SubscriptionPlansScreen() {
   const isPurchasing = useSelector(selectIsPurchasing);
   const [billing, setBilling] = useState<BillingCycle>('monthly');
 
-  const handleUpgrade = useCallback(
-    (plan: PlanConfig) => {
-      const price =
-        billing === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
-      const period = billing === 'monthly' ? 'month' : 'year';
+  const handleUpgrade = (plan: PlanConfig) => {
+    const price = billing === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+    const period = billing === 'monthly' ? 'month' : 'year';
 
-      Alert.alert(
-        'Confirm Subscription',
-        `Subscribe to ${plan.name} for $${price.toFixed(2)}/${period}?`,
-        [
-          {text: 'Cancel', style: 'cancel'},
-          {
-            text: 'Subscribe',
-            onPress: () => {
-              dispatch(purchaseRequest(plan.tier));
-            },
+    Alert.alert(
+      'Confirm Subscription',
+      `Subscribe to ${plan.name} for $${price.toFixed(2)}/${period}?`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Subscribe',
+          onPress: () => {
+            dispatch(purchaseRequest(plan.tier));
           },
-        ],
-      );
-    },
-    [dispatch, billing],
-  );
+        },
+      ],
+    );
+  };
 
   const formatPrice = (plan: PlanConfig) => {
     if (plan.monthlyPrice === 0) return 'Free';

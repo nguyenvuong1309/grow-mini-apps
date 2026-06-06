@@ -103,11 +103,11 @@ export default Repack.defineRspackConfig(({mode, platform}) => {
             version: '5.5.2',
             requiredVersion: '5.5.2',
           },
-          'react-native-fast-image': {
+          '@d11/react-native-fast-image': {
             singleton: true,
             eager: true,
-            version: '8.6.3',
-            requiredVersion: '8.6.3',
+            version: '8.13.0',
+            requiredVersion: '8.13.0',
           },
           'react-native-worklets': {
             singleton: true,

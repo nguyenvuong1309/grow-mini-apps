@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   FlatList,
@@ -86,63 +86,51 @@ export function FeedScreen() {
     };
   }, [dispatch]);
 
-  const handleFilterChange = useCallback(
-    (filter: FeedFilter) => {
-      if (filter === activeFilter) {
-        return;
-      }
-      dispatch(setFeedFilter(filter));
-      dispatch(fetchFeedRequest({page: 0}));
-    },
-    [dispatch, activeFilter],
-  );
+  const handleFilterChange = (filter: FeedFilter) => {
+    if (filter === activeFilter) {
+      return;
+    }
+    dispatch(setFeedFilter(filter));
+    dispatch(fetchFeedRequest({page: 0}));
+  };
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = () => {
     dispatch(refreshFeedRequest());
-  }, [dispatch]);
+  };
 
-  const handleLoadMore = useCallback(() => {
+  const handleLoadMore = () => {
     if (hasMore && !isLoadingMore && !isLoading) {
       dispatch(fetchFeedRequest({page: page + 1}));
     }
-  }, [hasMore, isLoadingMore, isLoading, page, dispatch]);
+  };
 
-  const handlePostPress = useCallback(
-    (post: FeedPost) => {
-      navigate('PostDetail', {postId: post.id});
-    },
-    [navigate],
-  );
+  const handlePostPress = (post: FeedPost) => {
+    navigate('PostDetail', {postId: post.id});
+  };
 
-  const handleCommentPress = useCallback(
-    (post: FeedPost) => {
-      dispatch(resetComments());
-      dispatch(fetchCommentsRequest({checkinId: post.id, page: 0}));
-      setCommentsSheet(prev => ({
-        visible: true,
-        checkinId: post.id,
-        instanceKey: prev.instanceKey + 1,
-      }));
-    },
-    [dispatch],
-  );
+  const handleCommentPress = (post: FeedPost) => {
+    dispatch(resetComments());
+    dispatch(fetchCommentsRequest({checkinId: post.id, page: 0}));
+    setCommentsSheet(prev => ({
+      visible: true,
+      checkinId: post.id,
+      instanceKey: prev.instanceKey + 1,
+    }));
+  };
 
-  const handleCloseComments = useCallback(() => {
+  const handleCloseComments = () => {
     setCommentsSheet(prev => ({...prev, visible: false}));
-  }, []);
+  };
 
-  const renderItem = useCallback(
-    ({item}: {item: FeedPost}) => (
-      <FeedPostCard
-        post={item}
-        onPress={handlePostPress}
-        onCommentPress={handleCommentPress}
-      />
-    ),
-    [handlePostPress, handleCommentPress],
+  const renderItem = ({item}: {item: FeedPost}) => (
+    <FeedPostCard
+      post={item}
+      onPress={handlePostPress}
+      onCommentPress={handleCommentPress}
+    />
   );
 
-  const renderFooter = useCallback(() => {
+  const renderFooter = () => {
     if (!isLoadingMore) {
       return null;
     }
@@ -151,12 +139,9 @@ export function FeedScreen() {
         <ActivityIndicator color={c.primary} />
       </View>
     );
-  }, [isLoadingMore, c.primary]);
+  };
 
-  const emptyConfig = useMemo(
-    () => EMPTY_STATE_CONFIG[activeFilter],
-    [activeFilter],
-  );
+  const emptyConfig = EMPTY_STATE_CONFIG[activeFilter];
 
   if (isLoading && posts.length === 0) {
     return (

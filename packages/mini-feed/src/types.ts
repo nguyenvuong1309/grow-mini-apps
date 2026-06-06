@@ -13,18 +13,9 @@ export enum ReactionEmoji {
   CLAP = 'clap',
 }
 
-export enum CheckinStatus {
-  PENDING = 'pending',
-  VERIFIED = 'verified',
-  REJECTED = 'rejected',
-}
+type CheckinStatus = 'pending' | 'verified' | 'rejected';
 
-export enum CheckinType {
-  PHOTO = 'photo',
-  TEXT = 'text',
-  METRIC = 'metric',
-  TICK = 'tick',
-}
+type CheckinType = 'photo' | 'text' | 'metric' | 'tick';
 
 export type ChallengeCategory =
   | 'fitness'

@@ -4,7 +4,7 @@
 // triggering Hermes EXC_BAD_ACCESS on iOS production builds. So this theme
 // reads ONLY `state.theme.mode` from the shared redux store via `useSelector`
 // and computes all tokens locally. It never imports a redux slice.
-import React, {useMemo} from 'react';
+import React from 'react';
 import {useColorScheme} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {colors} from './colors';
@@ -45,17 +45,14 @@ export function useTheme(): Theme {
   const effectiveMode: ThemeMode =
     mode ?? (systemScheme === 'dark' ? 'dark' : 'light');
 
-  return useMemo(
-    () => ({
-      colors: colors[effectiveMode],
-      typography,
-      spacing,
-      borderRadius,
-      shadows,
-      mode: effectiveMode,
-    }),
-    [effectiveMode],
-  );
+  return {
+    colors: colors[effectiveMode],
+    typography,
+    spacing,
+    borderRadius,
+    shadows,
+    mode: effectiveMode,
+  };
 }
 
 // Dispatches plain actions matching the host theme slice's action `type`
