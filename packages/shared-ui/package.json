@@ -1,0 +1,36 @@
+{
+  "name": "@grow/shared-ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,js,jsx}'"
+  },
+  "dependencies": {
+    "@swc/helpers": "^0.5.20"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-fast-image": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-redux": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@react-native/babel-preset": "0.84.1",
+    "@react-native/eslint-config": "0.84.1",
+    "@types/react": "^19.2.0",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^8.57.1",
+    "prettier": "2.8.8",
+    "react": "19.2.3",
+    "react-native": "0.84.1",
+    "typescript": "^5.8.3"
+  }
+}

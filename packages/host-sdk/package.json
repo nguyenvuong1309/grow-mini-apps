@@ -1,0 +1,31 @@
+{
+  "name": "@grow/host-sdk",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "prettier --write 'src/**/*.{ts,tsx}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx}'"
+  },
+  "dependencies": {
+    "@swc/helpers": "^0.5.20"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "*",
+    "@supabase/supabase-js": "*",
+    "react": "*",
+    "react-redux": "*",
+    "redux-saga": "*"
+  },
+  "devDependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
+    "@supabase/supabase-js": "^2.99.1",
+    "@types/react": "^19.2.0",
+    "react": "19.2.3",
+    "react-redux": "^9.2.0",
+    "redux-saga": "^1.4.2",
+    "typescript": "^5.8.3"
+  }
+}

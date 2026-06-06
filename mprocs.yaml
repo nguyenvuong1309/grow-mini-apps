@@ -5,3 +5,6 @@ procs:
   mini-subscription:
     cwd: packages/mini-subscription
     cmd: [pnpm, start]
+  mini-feed:
+    cwd: packages/mini-feed
+    cmd: [pnpm, start]
