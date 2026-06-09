@@ -116,6 +116,7 @@ export function SubscriptionPlansScreen() {
       </Text>
 
       <View
+        testID="billing-toggle"
         style={[
           styles.toggleRow,
           {
@@ -128,6 +129,7 @@ export function SubscriptionPlansScreen() {
         {(['monthly', 'yearly'] as BillingCycle[]).map(cycle => (
           <Pressable
             key={cycle}
+            testID={`billing-${cycle}-tab`}
             onPress={() => setBilling(cycle)}
             style={[
               styles.toggleOption,

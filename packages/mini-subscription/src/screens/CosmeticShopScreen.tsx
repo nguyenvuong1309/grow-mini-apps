@@ -130,6 +130,7 @@ export function CosmeticShopScreen() {
 
   const renderItem = ({item}: {item: CosmeticItem}) => (
     <View
+      testID={`cosmetic-item-${item.id}`}
       style={[
         styles.itemCard,
         {
@@ -163,6 +164,7 @@ export function CosmeticShopScreen() {
           </View>
         ) : (
           <Pressable
+            testID={`buy-cosmetic-${item.id}-btn`}
             onPress={() => handleBuy(item)}
             style={{
               backgroundColor: c.primary,
@@ -220,6 +222,7 @@ export function CosmeticShopScreen() {
         {FILTER_TABS.map(tab => (
           <Pressable
             key={tab.key}
+            testID={`cosmetic-filter-${tab.key}`}
             onPress={() => setActiveFilter(tab.key)}
             style={[
               styles.tab,
